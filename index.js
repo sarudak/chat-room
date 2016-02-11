@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var chatHistory = ['The admin asks you to keep things civil'];
+var chatHistory = [];
 
 app.get('/', function(req, res){
   res.sendfile('index.html');
@@ -10,12 +10,13 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   socket.username = 'guest';
   socket.on('getHistory', function(){
-    console.log('getting history');
-    console.log(chatHistory);
-    for (index = 0; index < chatHistory.length; index++) {
-      console.log(chatHistory[index]);
-      socket.emit('chat message', chatHistory[index]);
-    } 
+    for (index = chatHistory.length - 10; index < chatHistory.length; index++) {
+      if(chatHistory[index] != null){
+        socket.emit('chat message', chatHistory[index]);
+      }
+    }
+     socket.emit('chat message', 'You are now connected as ' + socket.username);
+     socket.emit('chat message', 'The administrator asks that you be cool')
 });
   socket.on('username', function(username){
     socket.username = username;
